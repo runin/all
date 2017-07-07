@@ -1,0 +1,59 @@
+<template>
+  <div id="index" class="wrap-page">
+      <img class="mark" src="../../static/images/mark.png" />
+      <img class="logo" src="../../static/images/logo.png"/>
+      <img class="h1" src="../../static/images/h1.png" />
+      <router-link to="/yao" class="go"></router-link>
+      <copyright class="copyright"></copyright>
+  </div>
+</template>
+
+<script>
+import copyright from './common/copyright.vue'
+
+export default {
+  name: 'index',
+  components: {
+    'copyright': copyright
+  },
+  methods: {
+    init: function () {
+    }
+  },
+  created: function () {
+  }
+}
+</script>
+
+<style scoped>
+    .wrap-page{
+        background: url(../../static/images/index-bg.jpg) no-repeat;
+        background-size: 100% 100%;
+    }
+    .mark{
+        width: 22%;
+        position: absolute;
+        left: 3%;
+        top: 2%;
+    }
+    .logo{
+        width: 83%;
+        padding-top: 22%;
+        padding-bottom: 5%;
+    }
+    .h1{
+        width: 85%;
+    }
+    .go{
+        display: block;
+        position: absolute;
+        width: 350px;
+        height: 86px;
+        margin: 0 auto;
+        bottom: 20%;
+        left: 0;
+        right: 0;
+        background: url(../../static/images/go.png) no-repeat;
+        background-size: 100% 100%;
+    }
+</style>

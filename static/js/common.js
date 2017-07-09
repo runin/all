@@ -278,126 +278,125 @@ window.dateformat = function(date, format) {
     });
     return format.replace(/(y+)/g, function(v) {
         return date.getFullYear().toString().slice(-v.length)
-    });
-};
+    })
+}
 
 window.dateNum = function(num) {
     return num < 10 ? '0' + num : num;
-};
+}
 
 window.add_param = function(sourceUrl, parameterName, parameterValue, replaceDuplicates) {
     if ((sourceUrl == null) || (sourceUrl.length == 0)) {
-        sourceUrl = document.location.href;
+        sourceUrl = document.location.href
     }
-    var urlParts = sourceUrl.split("?");
-    var newQueryString = "";
+    var urlParts = sourceUrl.split("?")
+    var newQueryString = ""
     if (urlParts.length > 1) {
-        var parameters = urlParts[1].split("&");
+        var parameters = urlParts[1].split("&")
         for ( var i = 0; (i < parameters.length); i++) {
-            var parameterParts = parameters[i].split("=");
+            var parameterParts = parameters[i].split("=")
             if (!(replaceDuplicates && parameterParts[0] == parameterName)) {
                 if (newQueryString == "") {
-                    newQueryString = "?";
+                    newQueryString = "?"
                 } else {
-                    newQueryString += "&";
+                    newQueryString += "&"
                 }
-                newQueryString += parameterParts[0] + "=" + parameterParts[1];
+                newQueryString += parameterParts[0] + "=" + parameterParts[1]
             }
         };
     }
     if (parameterValue !== null) {
         if (newQueryString == "") {
-            newQueryString = "?";
+            newQueryString = "?"
         } else {
-            newQueryString += "&";
+            newQueryString += "&"
         }
-        newQueryString += parameterName + "=" + parameterValue;
+        newQueryString += parameterName + "=" + parameterValue
     }
     return urlParts[0] + newQueryString;
-};
+}
 
-window.comptime = function(beginTime, endTime){
-    var beginTimes=beginTime.substring(0,10).split('-');
-    var endTimes=endTime.substring(0,10).split('-');
-    beginTime=beginTimes[1]+'-'+beginTimes[2]+'-'+beginTimes[0]+' '+beginTime.substring(10,19);
-    endTime=endTimes[1]+'-'+endTimes[2]+'-'+endTimes[0]+' '+endTime.substring(10,19);
-    var a =(timestamp(endTime)-timestamp(beginTime))/3600/1000;
-    if(a<0){
-        return -1;
-    }else if (a>0){
-        return 1;
-    }else if (a==0){
-        return 0;
-    }else{
-        return -2
-    }
-};
+window.comptime = function (beginTime, endTime) {
+  let beginTimes = beginTime.substring(0, 10).split('-')
+  let endTimes = endTime.substring(0, 10).split('-')
+  beginTime = beginTimes[1] + '-' + beginTimes[2] + '-' + beginTimes[0] + ' ' + beginTime.substring(10, 19)
+  endTime = endTimes[1] + '-' + endTimes[2] + '-' + endTimes[0] + ' ' + endTime.substring(10, 19)
+  let a = (window.timestamp(endTime) - window.timestamp(beginTime)) / 3600 / 1000
+  if (a < 0) {
+    return -1
+  } else if (a > 0) {
+    return 1
+  } else if (a === 0) {
+    return 0
+  } else {
+    return -2
+  }
+}
 
-window.getRandomArbitrary = function(min, max) {
-    return parseInt(Math.random()*(max - min)+min);
-};
+window.getRandomArbitrary = function (min, max) {
+    return parseInt(Math.random() * (max - min) + min)
+}
 
-$.fn.countDown = function(options) {
-    var defaultVal = {
-        // 存放结束时间
-        eAttr : 'etime',
-        sAttr : 'stime', // 存放开始时间
-        wTime : 100, // 以100毫秒为单位进行演算
-        etpl : '%H%:%M%:%S%.%ms%', // 还有...结束
-        stpl : '%H%:%M%:%S%.%ms%', // 还有...开始
-        sdtpl : '已开始',
-        otpl : '活动已结束', // 过期显示的文本模版
-        stCallback: null,
-        sdCallback: null,
-        otCallback: null
-    };
-    var dateNum = function(num) {
-        return num < 10 ? '0' + num : num;
-    };
-    var subNum = function(num){
-        numF = num.toString().substring(0,1);
-        numS = num.toString().substring(1,num.length);
-        return num = numF + "" + numS;
-    };
-    var s = $.extend(defaultVal, options);
-    var vthis = $(this);
-    var num = 60;
-    var runTime = function() {
-        var nowTime = new Date().getTime();
-        vthis.each(function() {
-            var nthis = $(this);
-            var sorgT = parseInt(nthis.attr(s.sAttr));
-            var eorgT = parseInt(nthis.attr(s.eAttr));
-            var sT = isNaN(sorgT) ? 0 : sorgT - nowTime;
-            var eT = isNaN(eorgT) ? 0 : eorgT - nowTime;
-            var showTime = function(rT, showTpl) {
-                var ss_ = Math.round(rT / s.wTime);
-                ss_ = subNum(dateNum(Math.floor(ss_ *s.wTime/1000)));
-                var s_ = Math.round((rT % 60000) / s.wTime);
-                s_ = subNum(dateNum(Math.min(Math.floor(s_ / 1000 * s.wTime), 59)));
-                var m_ = subNum(dateNum(Math.floor((rT % 3600000) / 60000)));
-                var h_ = subNum(dateNum(Math.floor((rT % 86400000) / 3600000)));
-                var d_ = subNum(dateNum(Math.floor(rT / 86400000)));
-                nthis.html(showTpl.replace(/%S%/, s_).replace(/%M%/, m_).replace(/%H%/, h_).replace(/%D%/, d_).replace(/%SS%/, ss_));
-            };
-            if (sT > 0) {
-                showTime(sT, s.stpl);
-                s.stCallback && s.stCallback();
-            } else if (eT > 0) {
-                showTime(eT, s.etpl);
-                s.sdCallback && s.sdCallback();
-            } else {
-                nthis.html(s.otpl);
-                s.otCallback && s.otCallback();
-            }
+$.fn.countDown = function (options) {
+  let defaultVal = {
+    // 存放结束时间
+    eAttr: 'etime',
+    sAttr: 'stime', // 存放开始时间
+    wTime: 100, // 以100毫秒为单位进行演算
+    etpl: '%H%:%M%:%S%.%ms%', // 还有...结束
+    stpl: '%H%:%M%:%S%.%ms%', // 还有...开始
+    sdtpl: '已开始',
+    otpl: '活动已结束', // 过期显示的文本模版
+    stCallback: null,
+    sdCallback: null,
+    otCallback: null
+  }
+  let dateNum = function (num) {
+      return num < 10 ? '0' + num : num
+  }
+  let subNum = function (num) {
+      numF = num.toString().substring(0, 1)
+      numS = num.toString().substring(1, num.length)
+      return num = numF + '' + numS
+  }
+  let s = $.extend(defaultVal, options)
+  let vthis = $(this)
+  let num = 60
+  let runTime = function () {
+    let nowTime = new Date().getTime()
+      vthis.each(function () {
+        let nthis = $(this)
+        let sorgT = parseInt(nthis.attr(s.sAttr))
+        let eorgT = parseInt(nthis.attr(s.eAttr))
+        let sT = isNaN(sorgT) ? 0 : sorgT - nowTime
+        let eT = isNaN(eorgT) ? 0 : eorgT - nowTime
+        let showTime = function (rT, showTpl) {
+          let ss_ = Math.round(rT / s.wTime)
+          ss_ = subNum(dateNum(Math.floor(ss_ * s.wTime / 1000)))
+          let s_ = Math.round((rT % 60000) / s.wTime)
+          s_ = subNum(dateNum(Math.min(Math.floor(s_ / 1000 * s.wTime), 59)))
+          let m_ = subNum(dateNum(Math.floor((rT % 3600000) / 60000)))
+          let h_ = subNum(dateNum(Math.floor((rT % 86400000) / 3600000)))
+          let d_ = subNum(dateNum(Math.floor(rT / 86400000)))
+          nthis.html(showTpl.replace(/%S%/, s_).replace(/%M%/, m_).replace(/%H%/, h_).replace(/%D%/, d_).replace(/%SS%/, ss_))
+        }
+        if (sT > 0) {
+          showTime(sT, s.stpl)
+          s.stCallback && s.stCallback()
+        } else if (eT > 0) {
+          showTime(eT, s.etpl)
+          s.sdCallback && s.sdCallback()
+        } else {
+          nthis.html(s.otpl)
+          s.otCallback && s.otCallback()
+        }
+      })
+  }
 
-        });
-    };
-
-    setInterval(function() {
-        runTime();
-    }, s.wTime);
-};
+  setInterval(function() {
+      runTime()
+  }, s.wTime)
+}
 
 
 window.delQueStr = function(url, ref) {

@@ -6,6 +6,7 @@
             <section class="main-top m-t-b">
                 <header>
                     <section id="marquee" class="marquee"><ul></ul></section>
+                    <count-down></count-down>
                     <p class="thanks-tips"></p>
                 </header>
                 <img class="bg-yao yao-top" src="../../static/images/bg-wheel-top.png">
@@ -28,11 +29,12 @@
 
 <script>
     import copyright from './common/copyright.vue'
-
+    import countDown from './common/countDown.vue'
     export default {
       name: 'yao',
       components: {
-        'copyright': copyright
+        'copyright': copyright,
+        'count-down': countDown
       },
       data: function () {
         return {

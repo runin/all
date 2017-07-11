@@ -1,6 +1,6 @@
 # jiangsu
 
-> allProgram1
+> allProgram
 
 ## Build Setup
 

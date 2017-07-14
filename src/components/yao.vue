@@ -1,12 +1,17 @@
 <template>
     <div id="yao" class="wrap-page">
-        <audio preload="auto" id="audio-a" src="../../static/images/audio-a.mp3" class="preload"></audio>
-        <audio preload="auto" id="audio-b" src="../../static/images/audio-b.mp3" class="preload"></audio>
-        <section class="home-box">
+        <audio preload="auto" ref="audioA" id="audio-a" src="../../static/images/audio-a.mp3" class="preload"></audio>
+        <audio preload="auto" ref="audioB" id="audio-b" src="../../static/images/audio-b.mp3" class="preload"></audio>
+        <section class="home-box" v-bind:class="{ yao: isYao }">
             <section class="main-top m-t-b">
                 <header>
-                    <section id="marquee" class="marquee"><ul></ul></section>
-                    <count-down></count-down>
+                    <div>
+                        <time-down
+                                v-on:canShakeFunChild="canShakeFunParent"
+                                v-on:safeFlagFunChild="safeFlagFunParent"
+                                v-on:typeFunChild="typeFunParent"
+                        ></time-down>
+                    </div>
                     <p class="thanks-tips"></p>
                 </header>
                 <img class="bg-yao yao-top" src="../../static/images/bg-wheel-top.png">
@@ -24,22 +29,145 @@
         <section id="article">
             <section class="comments" id="comments"></section>
         </section>
+        <loading v-if="isLoading" v-bind:tips="parentMsg"></loading>
+        <show-tips v-if="isshowTips" v-bind:message="parentTips"></show-tips>
     </div>
 </template>
 
 <script>
+    import api from '@/api/api'
     import copyright from './common/copyright.vue'
-    import countDown from './common/countDown.vue'
+    import timeDown from './common/timeDown.vue'
+    import loading from './common/loading.vue'
+    import showTips from './common/showTips.vue'
+
     export default {
       name: 'yao',
       components: {
         'copyright': copyright,
-        'count-down': countDown
+        'time-down': timeDown,
+        'loading': loading,
+        'showTips': showTips
       },
       data: function () {
         return {
-
+          isLoading: false,
+          isshowTips: false,
+          parentMsg: '努力加载中...',
+          parentTips: '别灰心，继续加油',
+          isYao: false,
+          isCanShake: false,
+          safeFlag: false,
+          type: 2
         }
+      },
+      methods: {
+        init () {
+          this.keyDown()
+        },
+        canShakeFunParent (data) {
+          this.isCanShake = data
+          console.log('isCanShake', this.isCanShake)
+        },
+        safeFlagFunParent (data) {
+          this.safeFlag = data
+          console.log('safeFlag', this.safeFlag)
+        },
+        typeFunParent (data) {
+          this.type = data
+          console.log('type', this.type)
+        },
+        keyDown () {
+          let that = this
+          document.onkeydown = function (e) {
+            let keycode = e.which
+            if (keycode === 32) {
+              that.shakeListener()
+            }
+          }
+        },
+        shakeListener () {
+          let that = this
+          if (!that.safeFlag) {
+            if (that.isCanShake) {
+              that.isCanShake = false
+            } else {
+              return
+            }
+            if (that.type !== 2) {
+              return
+            }
+          }
+          that.$refs.audioA.play()
+
+          that.isYao = true
+          setTimeout(() => {
+            that.isYao = false
+          }, 1200)
+
+          that.parentMsg = '抽奖中，请稍后...'
+          that.isLoading = true
+
+          if (!window.openid || window.openid === 'null' || that.safeFlag === true) {
+            setTimeout(() => {
+              that.fill(null)// 摇一摇
+            }, 1500)
+          } else {
+            setTimeout(() => {
+              that.drawlottery()
+            }, 1500)
+          }
+        },
+        drawlottery: function () {
+          let that = this
+          let sn = new Date().getTime() + ''
+//          api.recordUserOperate(window.openid, '调用抽奖接口', 'doLottery')
+          api.luck().then(function (data) {
+            if (data.result) {
+              if (data.sn === sn) {
+                sn = new Date().getTime() + ''
+                that.fill(data)
+              }
+            } else {
+              sn = new Date().getTime() + ''
+              that.fill(null)
+            }
+          }, function () {
+            sn = new Date().getTime() + ''
+            that.fill(null)
+          })
+//          api.recordUserPage(window.openid, '调用抽奖接口', 0)
+        },
+        fill: function (data) {
+          var that = this
+          if (data === null || data.result === false || data.pt === 0) {
+            setTimeout(() => {
+              // H.dialog.thanks.open(data);
+              that.thanks()
+            }, 1500)
+            return
+          } else {
+            that.$refs.audioA.pause()
+            that.$refs.audioB.play()
+            that.showDialog(data)
+          }
+        },
+        thanks () {
+          let that = this
+          that.isLoading = false
+          that.isCanShake = true
+          let tips = ''
+          if (window.thanksTips) {
+            tips = '不纯不抢，继续来战，加油吧~'
+          } else {
+            tips = window.thanksTips[window.getRandomArbitrary(0, window.thanksTips.length)]
+          }
+          that.isshowTips = true
+          that.parentTips = tips
+        }
+      },
+      created: function () {
+        this.init()
       }
     }
 </script>
@@ -47,11 +175,11 @@
     html{
         background: #FFF;
     }
-    body {
+    #yao{
         width: 100%;
-        height: 100%;
+        height: 100vh;
         overflow: hidden;
-        opacity: 0;
+        opacity: 1;
         background: url(../../static/images/bg-yao-default.jpg) no-repeat center center #FFF;
         background-size: 100% auto;
     }
@@ -87,124 +215,6 @@
         box-sizing:border-box;
         -webkit-transition: -webkit-transform .2s ease;
     }
-    .main-top .header {
-        position: relative;
-        width: 100%;
-        clear: both;
-        overflow: hidden;
-        z-index: 99999;
-    }
-    .main-top .header .icon-yhlogo {
-        width: 32%;
-        float: left;
-        margin: 10px 0 0 8px;
-    }
-    .icon-lotterytip {
-        width: 33%;
-        clear: both;
-        margin: 3% auto 2%;
-        background-blend-mode: hard-light;
-    }
-    .marquee {
-        display: block;
-        width: 96%;
-        margin: 2.5% auto 1px;
-        color: #FFF;
-        font-size: 16px;
-        height: 35px;
-        text-align: center;
-        overflow: hidden;
-        opacity: 0;
-        background: #510f7a;
-        border-radius: 5px;
-    }
-    .marquee:before{
-        content: '';
-        display: inline-block;
-        width: 30px;
-        height: 27px;
-        /*background: url(../../static/images/lb.png) no-repeat;*/
-        background-size: 30px 27px;
-        float: left;
-        margin: 4px 6px 6px 6px;
-    }
-    .marquee span {
-        display: inline-block;
-        color: #FFF;
-        text-overflow: ellipsis;
-        display: -webkit-inline-box;
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        color: #FFF;
-        font-size: 14px;
-        vertical-align: text-bottom;
-    }
-    .marquee li {
-        display: block;
-        height: 30px;
-        line-height: 33px;
-        overflow: hidden;
-        margin:0 10px;
-        position: relative;
-    }
-    .marquee li i{
-        background: #FFF;
-        display: inline-block;
-        width: 6px;
-        height: 6px;
-        border-radius: 3px;
-        margin-right: 3px;
-        /*vertical-align: text-top;*/
-        position: relative;
-        top: -10px;
-    }
-
-    .countdown{
-        position: relative;
-        margin: 2% auto 0;
-        color: #23c2e0;
-        font-size: 36px;
-        width: 100%;
-        text-align: center;
-        text-shadow: 0px 1px 0px #fff;
-        z-index: 9;
-    }
-    .countdown .countdown-tip img{
-        width: 37%;
-        margin-bottom: 19px;
-    }
-    .countdown .detail-countdown{
-        display: block;
-        width: 404px;
-        height: 85px;
-        background: url(../../static/images/count-bbg.png) no-repeat;
-        background-size: 100% 100%;
-        margin: 0 auto;
-    }
-    .countdown .detail-countdown label i{
-        display: inline-block;
-        width: 42px;
-        height: 64px;
-        line-height: 64px;
-        background: url(../../static/images/icon-num-bg.png) no-repeat;
-        background-size: 100% 100%;
-        margin: 11px 6px 0 0;
-        color: #DF0C02;
-        box-shadow: 2px 1px 4px rgb(226, 211, 217);
-        font-style: normal;
-        font-weight: 600;
-        border-radius: 5px;
-    }
-    .countdown .detail-countdown span img{
-        width: 10px;
-        display: inline-block;
-        margin: 0 13px 0 6px;
-    }
-
-    .main-top .hidden {
-        visibility:hidden;
-    }
     .main-foot {
         position:absolute;
         bottom:1px;
@@ -223,6 +233,19 @@
         bottom: 9vh;
         z-index: 8;
     }
+    .home-box .main-top, .home-box .main-foot{
+        -webkit-transition: -webkit-transform .4s ease;
+        -webkit-transform: translate3d(0,0,0);
+    }
+    .home-box.yao .main-top{
+        -webkit-transition: -webkit-transform .2s ease;
+        -webkit-transform: translate3d(0,-150px,0);
+    }
+    .home-box.yao .main-foot{
+        -webkit-transition: -webkit-transform .2s ease;
+        -webkit-transform: translate3d(0,150px,0);
+    }
+
     .thanks-tips {
         position: relative;
         font-size: 23px;
@@ -243,207 +266,6 @@
         -moz-transition: all .5s;
         transition: all .5s;
         -webkit-backface-visibility:hidden;
-    }
-    .fail-tips {
-        width: 100%;
-        text-align: center;
-    }
-    .fail-tips * {
-        font-size: 20px;
-        font-weight: bolder;
-        color: #FFCDED;
-        font-style: normal;
-        text-shadow: 0 0 10px rgba(255,255,255,.5);
-    }
-    .fail-tips i {
-        display: inline-block;
-        font-size: 32px;
-        margin: 0 8px;
-        font-weight: bolder;
-        color: #AF0070;
-        font-style: normal;
-        text-shadow: 1px 0px 0px #FFF, -1px 0px 0px #FFF, 0px 1px 0px #FFF, 0px -1px 0px #FFF !important;
-        -webkit-animation: tada 2s 0s infinite ease-in-out;
-        -webkit-transform-origin: bottom;
-        -webkit-animation-fill-mode: both;
-    }
-    @-webkit-keyframes btn-show {
-        0% { -webkit-transform: scale(0); }
-        100% { -webkit-transform: scale(1); }
-    }
-    @keyframes btn-show {
-        0% { transform: scale(0); }
-        100% { transform: scale(1); }
-    }
-    @-webkit-keyframes tada {
-        0% {
-            -webkit-transform: scale3d(1,1,1);
-            transform: scale3d(1,1,1);
-        }
-        5%,10% {
-            -webkit-transform: scale3d(.9,.9,.9) rotate3d(0,0,1,-3deg);
-            transform: scale3d(.9,.9,.9) rotate3d(0,0,1,-3deg);
-        }
-        15%,25%,35%,45% {
-            -webkit-transform: scale3d(1.1,1.1,1.1) rotate3d(0,0,1,3deg);
-            transform: scale3d(1.1,1.1,1.1) rotate3d(0,0,1,3deg);
-        }
-        20%,30%,40% {
-            -webkit-transform: scale3d(1.1,1.1,1.1) rotate3d(0,0,1,-3deg);
-            transform: scale3d(1.1,1.1,1.1) rotate3d(0,0,1,-3deg);
-        }
-        50% {
-            -webkit-transform: scale3d(1,1,1);
-            transform: scale3d(1,1,1);
-        }
-        100% {
-            -webkit-transform: scale3d(1,1,1);
-            transform: scale3d(1,1,1);
-        }
-    }
-    @keyframes tada {
-        0% {
-            -webkit-transform: scale3d(1,1,1);
-            transform: scale3d(1,1,1)
-        }
-        5%,10% {
-            -webkit-transform: scale3d(.9,.9,.9) rotate3d(0,0,1,-3deg);
-            transform: scale3d(.9,.9,.9) rotate3d(0,0,1,-3deg)
-        }
-        15%,25%,35%,45% {
-            -webkit-transform: scale3d(1.1,1.1,1.1) rotate3d(0,0,1,3deg);
-            transform: scale3d(1.1,1.1,1.1) rotate3d(0,0,1,3deg)
-        }
-        20%,30%,40% {
-            -webkit-transform: scale3d(1.1,1.1,1.1) rotate3d(0,0,1,-3deg);
-            transform: scale3d(1.1,1.1,1.1) rotate3d(0,0,1,-3deg)
-        }
-        50% {
-            -webkit-transform: scale3d(1,1,1);
-            transform: scale3d(1,1,1)
-        }
-        100% {
-            -webkit-transform: scale3d(1,1,1);
-            transform: scale3d(1,1,1)
-        }
-    }
-    .visibility{
-        visibility: hidden;
-    }
-    .link-out{
-        position: relative;
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-top: 3%;
-        color: #fff;
-        font-size: 17px;
-    }
-    .link-out p{
-        display: inline-block;
-        position: relative;
-    }
-    .link-out p:before{
-        content: "";
-        background: url("../../static/images/icon-link.png") 0 0 no-repeat;
-        background-size: 100% 100%;
-        display: inline-block;
-        position: absolute;
-        width: 40px;
-        height: 40px;
-        vertical-align: middle;
-        left: -50px;
-        top: -15px;
-        -webkit-animation-name: wobble;
-        animation-name: wobble;
-        -webkit-animation-duration: 1s;
-        animation-duration: 1s;
-        -webkit-animation-fill-mode: both;
-        animation-fill-mode: both;
-        animation-iteration-count:infinite;
-        -webkit-animation-iteration-count:infinite;
-    }
-    @-webkit-keyframes wobble {
-        0% {
-            -webkit-transform: none;
-            transform: none;
-        }
-
-        15% {
-            -webkit-transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -7deg);
-            transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -7deg);
-        }
-
-        30% {
-            -webkit-transform: translate3d(0%, 0, 0) rotate3d(0, 0, 1, 5deg);
-            transform: translate3d(0%, 0, 0) rotate3d(0, 0, 1, 5deg);
-        }
-
-        45% {
-            -webkit-transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -5deg);
-            transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -5deg);
-        }
-
-        60% {
-            -webkit-transform: translate3d(0%, 0, 0) rotate3d(0, 0, 1, 5deg);
-            transform: translate3d(0%, 0, 0) rotate3d(0, 0, 1, 5deg);
-        }
-
-        75% {
-            -webkit-transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -3deg);
-            transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -3deg);
-        }
-
-        100% {
-            -webkit-transform: none;
-            transform: none;
-        }
-    }
-
-    @keyframes wobble {
-        0% {
-            -webkit-transform: none;
-            transform: none;
-        }
-
-        15% {
-            -webkit-transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -7deg);
-            transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -7deg);
-        }
-
-        30% {
-            -webkit-transform: translate3d(0%, 0, 0) rotate3d(0, 0, 1, 5deg);
-            transform: translate3d(0%, 0, 0) rotate3d(0, 0, 1, 5deg);
-        }
-
-        45% {
-            -webkit-transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -5deg);
-            transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -5deg);
-        }
-
-        60% {
-            -webkit-transform: translate3d(0%, 0, 0) rotate3d(0, 0, 1, 5deg);
-            transform: translate3d(0%, 0, 0) rotate3d(0, 0, 1, 5deg);
-        }
-
-        75% {
-            -webkit-transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -3deg);
-            transform: translate3d(-0%, 0, 0) rotate3d(0, 0, 1, -3deg);
-        }
-
-        100% {
-            -webkit-transform: none;
-            transform: none;
-        }
-    }
-    @media screen and (min-device-width:320px)
-    and (max-device-height:500px)
-    and (orientation:portrait)
-    and (-webkit-min-device-pixel-ratio:2) {
-        .home-box .bg-yao {
-            width: 80%;
-            left: 10%;
-        }
     }
 
     /* iPhone5 */

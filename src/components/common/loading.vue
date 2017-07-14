@@ -6,7 +6,7 @@
                 <section class="qy-logo-2"></section>
                 <section class="qy-logo-3"></section>
             </section>
-            <section class="qy-loading-tips">{{ tips }}</section>
+            <section class="qy-loading-tips">{{ tips || '努力加载中...' }}</section>
         </section>
     </div>
 
@@ -14,11 +14,7 @@
 <script>
     export default {
       name: 'loading',
-      data: function () {
-        return {
-          tips: '努力加载中...'
-        }
-      }
+      props: ['tips']
     }
 </script>
 <style scoped>

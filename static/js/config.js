@@ -20,6 +20,7 @@ window.mpappid = "wx9097d74006e67df3"
 
 window.copyright = '页面由江苏卫视提供<br>新掌趣科技技术支持 & Powered by holdfun.cn'
 window.rule_temp = ''
+window.thanksTips = ['别灰心，继续加油！', '可能是姿势不对哦~', '加油~好运马上就来', '换个姿势，再来一次！', '再来一次，大奖在等你哦！']
 window.crossdayLimit = 1 * 60 * 60 * 1000	//  跨天摇奖判断阀值，默认为1小时。单位ms
 // 测试
 // window.tongjiKey = '53dc672b238b4ed2bc3a2f6245882a15-tv_cctv2_surprise-3a40f55425fd4e5a9877c9ad976f5097';

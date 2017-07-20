@@ -40,9 +40,11 @@ export default {
         width: 83%;
         padding-top: 22%;
         padding-bottom: 5%;
+        margin: 0 auto;
     }
     .h1{
         width: 85%;
+        margin: 0 auto;
     }
     .go{
         display: block;

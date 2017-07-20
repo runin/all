@@ -10,23 +10,17 @@
             </span>
             <span v-if="detailCountdown" class="detail-countdown" v-bind:endTime='endTime' v-html="time"></span>
         </section>
-        <loading v-if="isLoading"></loading>
     </div>
 </template>
 
 <script>
   import api from '@/api/api'
-  import loading from './loading.vue'
 
   export default{
     name: 'countDown',
-    components: {
-      'loading': loading
-    },
     data () {
       return {
         time: '',
-        flag: false,
         imagesTips: true,
         detailCountdown: true,
         endTips: false,
@@ -43,7 +37,10 @@
         countdown: true,
         lotteryImgList: [],
         isCanShake: false,
-        type: 2
+        type: 2,
+        index: 0,
+        isTimeOver: false,
+        timeInterval: null
       }
     },
     mounted () {
@@ -54,10 +51,8 @@
         this.lotteryRoundPort()
       },
       countDown () {
-        let time = setInterval(() => {
-          if (this.flag === true) {
-            clearInterval(time)
-          }
+        let that = this
+        that.timeInterval = setInterval(() => {
           this.runTime()
         }, 100)
       },
@@ -70,8 +65,9 @@
         let m = this.formate(parseInt(leftTime / 60 % 60))
         let s = this.formate(parseInt(leftTime % 60))
         if (leftTime <= 0) {
-          this.flag = true
           this.timeEnd()
+        } else {
+          this.isTimeOver = false
         }
         let dString = d.toString().split('')
         let hString = h.toString().split('')
@@ -92,16 +88,82 @@
         }
       },
       timeEnd: function () {
-        this.tip = '倒计时结束'
-        this.imagesTips = false
-        this.endTips = true
-        this.detailCountdown = false
+        let that = this
+        console.log('timeEnd')
+        if (that.crossLotteryCanCallback) {
+          if (!that.isTimeOver) {
+            var delay = Math.ceil(1000 * Math.random() + 500)
+            that.isTimeOver = true
+            that.crossLotteryCanCallback = false
+            that.$emit('isParentMsgChild', that.parentMsg = '请稍后...')
+            that.$emit('isLoadingChild', that.isLoading = true)
+            setTimeout(function () {
+              that.lotteryRoundPort()
+            }, delay)
+          }
+        } else {
+          if (that.type === 1) {
+            // 距摇奖开始倒计时结束后显示距离下轮摇奖结束倒计时
+            if (!that.isTimeOver) {
+              that.isTimeOver = true
+              that.$emit('isParentMsgChild', that.parentMsg = '请稍后...')
+              that.$emit('isLoadingChild', that.isLoading = true)
+              setTimeout(function () {
+                that.nowCountdown(that.pal[that.index])
+              }, 1000)
+            }
+          } else if (that.type === 2) {
+            // 距摇奖结束倒计时倒计时后显示距离下轮摇奖开始倒计时
+            if (!that.isTimeOver) {
+              that.isTimeOver = true
+              if (that.index >= that.pal.length) {
+                if (that.crossLotteryFlag) {
+                  that.type = 1
+                  that.$emit('isParentMsgChild', that.parentMsg = '请稍后...')
+                  that.$emit('isLoadingChild', that.isLoading = true)
+                  setTimeout(function () {
+                    that.crossCountdown(that.pal[that.pal.length - 1].nst)
+                  }, 1000)
+                } else {
+                  that.type = 3
+                  that.change()
+                }
+                return
+              }
+              that.$emit('isParentMsgChild', that.parentMsg = '请稍后...')
+              that.$emit('isLoadingChild', that.isLoading = true)
+              var i = that.index - 1
+              if (i < that.pal.length - 1) {
+                var endTimeStr = that.pal[i].pd + ' ' + that.pal[i].et
+                var nextBeginTimeStr = that.pal[i + 1].pd + ' ' + that.pal[i + 1].st
+                if (window.comptime(endTimeStr, nextBeginTimeStr) <= 0) {
+                  // 有下一轮并且下一轮的开始时间和本轮的结束时间重合
+                  that.endType = 2
+                } else {
+                  // 有下一轮并且下一轮的开始时间和本轮的结束时间不重合
+                  that.endType = 1
+                }
+              }
+              setTimeout(function () {
+                if (that.endType === 2) {
+                  that.nowCountdown(that.pal[that.index])
+                } else if (that.endType === 1) {
+                  that.beforeCountdown(that.pal[that.index])
+                } else {
+                  that.change()
+                }
+              }, 1000)
+            }
+          } else {
+            that.$emit('canShakeFunChild', that.isCanShake = false)
+          }
+        }
       },
       lotteryRoundPort: function () {
         let that = this
         api.lotteryRound().then(function (data) {
           if (data.result === true) {
-            that.isLoading = false
+            that.$emit('isLoadingChild', that.isLoading = false)
             that.nowTime = window.timeTransform(data.sctm)
             let nowTimeStemp = new Date().getTime()
             that.dec = nowTimeStemp - data.sctm
@@ -137,7 +199,7 @@
         } else {
           that.safeLotteryMode('off')
         }
-        that.isLoading = false
+        that.$emit('isLoadingChild', that.isLoading = false)
       },
       ping: function () {
         let that = this
@@ -156,11 +218,14 @@
       },
       change: function () {
         let that = this
+        clearInterval(that.timeInterval)
         that.$emit('canShakeFunChild', that.isCanShake = false)
         that.countdown = true
         that.detailCountdown = false
         that.tip = '摇奖已结束,下期再战！'
-        that.isLoading = false
+        this.imagesTips = false
+        this.endTips = true
+        that.$emit('isLoadingChild', that.isLoading = false)
       },
       currentPrizeAct: function (data) {
         //  获取抽奖活动
@@ -210,7 +275,7 @@
             let beginTimeStr = prizeActList[i].pd + ' ' + prizeActList[i].st
             let endTimeStr = prizeActList[i].pd + ' ' + prizeActList[i].et
             that.index = i
-            that.isLoading = false
+            that.$emit('isLoadingChild', that.isLoading = false)
             //  在活动时间段内且可以抽奖
             if (window.comptime(nowTimeStr, beginTimeStr) <= 0 && window.comptime(nowTimeStr, endTimeStr) >= 0) {
               if (i < prizeActList.length - 1) {
@@ -254,14 +319,15 @@
         that.endTime = beginTimeLong
         that.detailCountdown = true
         that.tip = '距离摇奖开始还有'
+        that.imagesTips = true
+        that.endTips = false
         that.src = '../../../static/images/before.png'
-        that
         that.countDown()
         that.countdown = true
         if (prizeActList.bi.length > 0) {
           that.lotteryImgList = prizeActList.bi.split(',')
         }
-        that.isLoading = false
+        that.$emit('isLoadingChild', that.isLoading = false)
 //          if($("body").attr('data-type') == 'lottery') toUrl("recommend.html")
       },
       // 摇奖结束倒计时
@@ -276,13 +342,15 @@
         that.detailCountdown = true
         that.tip = '距离摇奖结束还有'
         that.src = '../../../static/images/end.png'
+        that.imagesTips = true
+        that.endTips = false
         that.countDown()
         that.countdown = true
         that.index++
         if (prizeActList.bi.length > 0) {
           that.lotteryImgList = prizeActList.bi.split(',')
         }
-        that.isLoading = false
+        that.$emit('isLoadingChild', that.isLoading = false)
 //          if($("body").attr('data-type') == 'lottery') return
 //          toUrl("lottery.html")
       },
@@ -301,7 +369,7 @@
         that.countDown()
         that.countdown = true
 //          if($("body").attr('data-type') == 'lottery') toUrl("recommend.html")
-        that.isLoading = false
+        that.$emit('isLoadingChild', that.isLoading = false)
       }
     }
   }
@@ -311,7 +379,7 @@
     .countdown{
         position: relative;
         margin: 12% auto 0;
-        color: #23c2e0;
+        color: #666;
         font-size: 36px;
         width: 100%;
         text-align: center;
@@ -320,7 +388,7 @@
     }
     .countdown .countdown-tip img{
         width: 37%;
-        margin-bottom: 19px;
+        margin: 0 auto 19px;
     }
     .countdown .detail-countdown{
         display: block;

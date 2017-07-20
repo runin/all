@@ -1,6 +1,6 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-
+import 'vue-ydui/dist/ydui.base.css'
 import Vue from 'vue'
 import vueTap from 'v-tap'
 import VueRouter from 'vue-router'

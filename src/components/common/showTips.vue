@@ -1,5 +1,5 @@
 <template>
-    <div id="showTips" v-if="isShow">
+    <div id="showTips">
         <div class="showTips">{{ message }}</div>
     </div>
 </template>
@@ -9,24 +9,12 @@
     name: 'showTips',
     data () {
       return {
-        isShow: true,
         styleObject: {}
       }
     },
     props: ['message'],
     methods: {
       init () {
-        this.resize(this.message)
-      },
-      resize (tips, timer) {
-        let that = this
-        if (tips) {
-          that.isShow = true
-          let timer = timer || 1200
-          setTimeout(function () {
-            that.isShow = false
-          }, timer)
-        }
       }
     },
     created () {

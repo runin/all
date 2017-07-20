@@ -10,6 +10,7 @@
                                 v-on:canShakeFunChild="canShakeFunParent"
                                 v-on:safeFlagFunChild="safeFlagFunParent"
                                 v-on:typeFunChild="typeFunParent"
+                                v-on:isLoadingChild="isLoadingParent"
                         ></time-down>
                     </div>
                     <p class="thanks-tips"></p>
@@ -29,8 +30,15 @@
         <section id="article">
             <section class="comments" id="comments"></section>
         </section>
-        <loading v-if="isLoading" v-bind:tips="parentMsg"></loading>
-        <show-tips v-if="isshowTips" v-bind:message="parentTips"></show-tips>
+        <loading v-if="isLoading"
+                 v-bind:tips="parentMsg"
+        ></loading>
+        <dialog-all v-if="isDialog"
+                    v-bind:data="data"
+                    v-on:isLoadingChild="isLoadingParent"
+                    v-on:canShakeFunChild="canShakeFunParent"
+                    v-on:isParentMsgChild="isParentMsgParent"
+        ></dialog-all>
     </div>
 </template>
 
@@ -39,7 +47,8 @@
     import copyright from './common/copyright.vue'
     import timeDown from './common/timeDown.vue'
     import loading from './common/loading.vue'
-    import showTips from './common/showTips.vue'
+    import {Toast} from 'vue-ydui/dist/lib.rem/dialog'
+    import dialog from './common/dialog.vue'
 
     export default {
       name: 'yao',
@@ -47,14 +56,14 @@
         'copyright': copyright,
         'time-down': timeDown,
         'loading': loading,
-        'showTips': showTips
+        'dialogAll': dialog
       },
       data: function () {
         return {
+          data: null,
+          isDialog: false,
           isLoading: false,
-          isshowTips: false,
           parentMsg: '努力加载中...',
-          parentTips: '别灰心，继续加油',
           isYao: false,
           isCanShake: false,
           safeFlag: false,
@@ -76,6 +85,12 @@
         typeFunParent (data) {
           this.type = data
           console.log('type', this.type)
+        },
+        isLoadingParent (data) {
+          this.isLoading = data
+        },
+        isParentMsgParent (data) {
+          this.parentMsg = data
         },
         keyDown () {
           let that = this
@@ -127,6 +142,9 @@
               if (data.sn === sn) {
                 sn = new Date().getTime() + ''
                 that.fill(data)
+              } else {
+                sn = new Date().getTime() + ''
+                that.fill(null)
               }
             } else {
               sn = new Date().getTime() + ''
@@ -149,7 +167,9 @@
           } else {
             that.$refs.audioA.pause()
             that.$refs.audioB.play()
-            that.showDialog(data)
+            that.data = data
+            that.isDialog = true
+            that.isLoading = false
           }
         },
         thanks () {
@@ -157,13 +177,16 @@
           that.isLoading = false
           that.isCanShake = true
           let tips = ''
-          if (window.thanksTips) {
+          if (!window.thanksTips) {
             tips = '不纯不抢，继续来战，加油吧~'
           } else {
             tips = window.thanksTips[window.getRandomArbitrary(0, window.thanksTips.length)]
           }
-          that.isshowTips = true
-          that.parentTips = tips
+
+          Toast({
+            mes: tips,
+            timeout: 1200
+          })
         }
       },
       created: function () {
@@ -171,7 +194,7 @@
       }
     }
 </script>
-<style scoped>
+<style>
     html{
         background: #FFF;
     }
@@ -268,21 +291,6 @@
         -webkit-backface-visibility:hidden;
     }
 
-    /* iPhone5 */
-    @media screen and (device-width: 320px)
-    and (device-height : 568px){
-    }
-
-    @media screen and (device-width : 414px)
-    and (device-height:736px) {
-        .home-box .yao-top {
-            bottom: -1px;
-        }
-        .home-box .yao-bottom {
-            top: 0;
-        }
-    }
-
 
     /*弹幕-s*/
     .comment_item{
@@ -309,4 +317,9 @@
         color: #FFFFFF!important;
     }
     /*弹幕-e*/
+
+
+    .m-toast{
+        -webkit-transform: scale(1.5);
+    }
 </style>

@@ -1,7 +1,7 @@
 <template>
     <div id="yao" class="wrap-page">
-        <audio preload="auto" ref="audioA" id="audio-a" src="../../static/images/audio-a.mp3" class="preload"></audio>
-        <audio preload="auto" ref="audioB" id="audio-b" src="../../static/images/audio-b.mp3" class="preload"></audio>
+        <audio preload="auto" ref="audioA" id="audio-a" src="../assets/images/audio-a.mp3" class="preload"></audio>
+        <audio preload="auto" ref="audioB" id="audio-b" src="../assets/images/audio-b.mp3" class="preload"></audio>
         <section class="home-box" v-bind:class="{ yao: isYao }">
             <section class="main-top m-t-b">
                 <header>
@@ -15,10 +15,10 @@
                     </div>
                     <p class="thanks-tips"></p>
                 </header>
-                <img class="bg-yao yao-top" src="../../static/images/bg-wheel-top.png">
+                <img class="bg-yao yao-top" src="../assets/images/bg-wheel-top.png">
             </section>
             <section class="main-foot m-f-b">
-                <img class="bg-yao yao-bottom" src="../../static/images/bg-wheel-bottom.png">
+                <img class="bg-yao yao-bottom" src="../assets/images/bg-wheel-bottom.png">
                 <section class="footer">
                     <a class="link-out none" id="link-out" data-collect="true" data-collect-flag="lottery-link-btn" data-collect-desc="摇奖页-吸粉链接"><p></p></a>
                 </section>
@@ -203,7 +203,7 @@
         height: 100vh;
         overflow: hidden;
         opacity: 1;
-        background: url(../../static/images/bg-yao-default.jpg) no-repeat center center #FFF;
+        background: url(../assets/images/bg-yao-default.jpg) no-repeat center center #FFF;
         background-size: 100% auto;
     }
     .home-box {
@@ -232,7 +232,7 @@
         top:0px;
         width:100%;
         height:50%;
-        background: url(../../static/images/bg-lottery-top.jpg) no-repeat bottom center;
+        background: url(../assets/images/bg-lottery-top.jpg) no-repeat bottom center;
         background-size: 100% 100%;;
         text-align: center;
         box-sizing:border-box;
@@ -243,7 +243,7 @@
         bottom:1px;
         width:100%;
         height:50%;
-        background: url(../../static/images/bg-lottery-bottom.jpg) no-repeat top center;
+        background: url(../assets/images/bg-lottery-bottom.jpg) no-repeat top center;
         background-size: 100% 100%;
         box-sizing:border-box;
         -webkit-transition: -webkit-transform .2s ease;

@@ -4,17 +4,16 @@ import VueResource from 'vue-resource'
 Vue.use(VueResource)
 
 const api = {}
-const domainUrl = window.isDev ? 'http://test.holdfun.cn/portal/' : 'https://yaotv.holdfun.cn/portal/'
 export default api
 
 api.lotteryRound = function () {
-  return Vue.http.jsonp(domainUrl + 'api/lottery/round' + window.isDev, {
+  return Vue.http.jsonp(window.domainUrl + 'api/lottery/round' + window.isDev, {
     jsonpCallback: 'callbackLotteryRoundHandler'
   }).then(api.resultVerify)
 }
 
 api.luck = function () {
-  return Vue.http.jsonp(domainUrl + 'api/lottery/exec/luck' + window.isDev, {
+  return Vue.http.jsonp(window.domainUrl + 'api/lottery/exec/luck' + window.isDev, {
     params: {
       matk: window.matk,
       sn: new Date().getTime() + ''
@@ -25,7 +24,7 @@ api.luck = function () {
 }
 
 api.ping = function () {
-  return Vue.http.jsonp(domainUrl + 'api/common/time' + window.isDev, {
+  return Vue.http.jsonp(window.domainUrl + 'api/common/time' + window.isDev, {
     jsonpCallback: 'commonApiTimeHandler'
   }).then(function (result) {
     return new Promise(function (resolve, reject) {
@@ -40,7 +39,7 @@ api.ping = function () {
 
 // JS Ticket
 api.getTicket = function () {
-  return Vue.http.jsonp(domainUrl + 'mp/jsapiticket' + window.isDev, {
+  return Vue.http.jsonp(window.domainUrl + 'mp/jsapiticket' + window.isDev, {
     params: {
       appId: window.mpappid
     },
@@ -49,7 +48,7 @@ api.getTicket = function () {
 }
 
 api.award = function (params) {
-  return Vue.http.jsonp(domainUrl + 'api/lottery/award' + window.isDev, {
+  return Vue.http.jsonp(window.domainUrl + 'api/lottery/award' + window.isDev, {
     params: params,
     jsonpCallback: 'callbackLotteryAwardHandler'
   })
@@ -94,7 +93,7 @@ api.wxConfig = function (data) {
 }
 
 api.recordUserLog = function (openid, operateDesc, operateDomId, loadingTime, flag) {
-  return Vue.http.jsonp(domainUrl + 'api/common/reportlog' + window.dev, {
+  return Vue.http.jsonp(window.domainUrl + 'api/common/reportlog' + window.dev, {
     params: {
       openid: openid,
       operateDesc: encodeURIComponent(operateDesc),

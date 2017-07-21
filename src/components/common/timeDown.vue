@@ -73,11 +73,11 @@
         let hString = h.toString().split('')
         let mString = m.toString().split('')
         let sString = s.toString().split('')
-        let dayDom = `<label class="${d ? '' : 'none'}"><i>${dString[0]}</i><i>${dString[1]}</i></label><img class="${d ? '' : 'none'}" src="../../../static/images/dot.png">`
-        let hourDom = `<label class="${h ? '' : 'none'}"><i>${hString[0]}</i><i>${hString[1]}</i></label><img class="${h ? '' : 'none'}" src="../../../static/images/dot.png">`
+        let dayDom = `<label class="${d ? '' : 'none'}"><i>${dString[0]}</i><i>${dString[1]}</i></label><img class="${d ? '' : 'none'}" src="../../assets/images/dot.png">`
+        let hourDom = `<label class="${h ? '' : 'none'}"><i>${hString[0]}</i><i>${hString[1]}</i></label><img class="${h ? '' : 'none'}" src="../../assets/images/dot.png">`
         let minuteDom = `<label><i>${mString[0]}</i><i>${mString[1]}</i></label>`
         let secondDom = `<label><i>${sString[0]}</i><i>${sString[1]}</i></label>`
-        let dotDom = `<img src="../../../static/images/dot.png">`
+        let dotDom = `<img src="../../assets/images/dot.png">`
         this.time = `${dayDom}${hourDom}${minuteDom}${dotDom}${secondDom}`
       },
       formate (time) {
@@ -394,7 +394,7 @@
         display: block;
         width: 404px;
         height: 85px;
-        background: url(../../../static/images/count-bbg.png) no-repeat;
+        background: url(../../assets/images/count-bbg.png) no-repeat;
         background-size: 100% 100%;
         margin: 0 auto;
     }
@@ -403,7 +403,7 @@
         width: 42px;
         height: 64px;
         line-height: 64px;
-        background: url(../../../static/images/icon-num-bg.png) no-repeat;
+        background: url(../../assets/images/icon-num-bg.png) no-repeat;
         background-size: 100% 100%;
         margin: 11px 6px 0 0;
         color: #DF0C02;

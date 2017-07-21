@@ -243,7 +243,7 @@
         right: -12px;
         width: 40px;
         height: 40px;
-        background: url(../../../static/images/icon-close.png) no-repeat;
+        background: url(../../assets/images/icon-close.png) no-repeat;
         background-size: 100% 100%;
         z-index: 9999999999;
     }
@@ -342,7 +342,7 @@
         margin: 0 6px;
         width: 263px;
         height: 63px;
-        background: url(../../../static/images/btn.png) no-repeat;
+        background: url(../../assets/images/btn.png) no-repeat;
         background-size: 100% 100%;
         line-height: 63px;
         border-radius: 30px;

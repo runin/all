@@ -1,8 +1,8 @@
 <template>
   <div id="index" class="wrap-page">
-      <img class="mark" src="../../static/images/mark.png" />
-      <img class="logo" src="../../static/images/logo.png"/>
-      <img class="h1" src="../../static/images/h1.png" />
+      <img class="mark" src="../assets/images/mark.png" />
+      <img class="logo" src="../assets/images/logo.png"/>
+      <img class="h1" src="../assets/images/h1.png" />
       <router-link to="/yao" class="go"></router-link>
       <copyright class="copyright"></copyright>
   </div>
@@ -27,7 +27,7 @@ export default {
 
 <style scoped>
     .wrap-page{
-        background: url(../../static/images/index-bg.jpg) no-repeat;
+        background: url(../assets/images/index-bg.jpg) no-repeat;
         background-size: 100% 100%;
     }
     .mark{
@@ -55,7 +55,7 @@ export default {
         bottom: 20%;
         left: 0;
         right: 0;
-        background: url(../../static/images/go.png) no-repeat;
+        background: url(../assets/images/go.png) no-repeat;
         background-size: 100% 100%;
     }
 </style>
